@@ -12,6 +12,25 @@ import { TestRunner } from "./test-runner";
 
 type View = "home" | "runner" | "result";
 
+type SafariFullscreenElement = HTMLElement & {
+  webkitRequestFullscreen?: () => Promise<void> | void;
+};
+
+async function requestFullscreen() {
+  const root = document.documentElement as SafariFullscreenElement;
+
+  if (root.requestFullscreen) {
+    try {
+      await root.requestFullscreen({ navigationUI: "hide" });
+      return;
+    } catch {
+      // Older Safari versions may expose the standard API without supporting it here.
+    }
+  }
+
+  await root.webkitRequestFullscreen?.();
+}
+
 export function ScreenDoctor() {
   const [view, setView] = useState<View>("home");
   const [mode, setMode] = useState<"auto" | "manual">("auto");
@@ -20,7 +39,7 @@ export function ScreenDoctor() {
   const start = async (selectedMode: "auto" | "manual") => {
     setMode(selectedMode);
     track("display_test_started", { mode: selectedMode, language });
-    await document.documentElement.requestFullscreen?.().catch(() => undefined);
+    await requestFullscreen().catch(() => undefined);
     setView("runner");
   };
 

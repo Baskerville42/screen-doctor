@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
 import type { Dictionary, Language } from "@/i18n";
 import { DISPLAY_TESTS, getTestDuration, TOTAL_AUTO_DURATION } from "@/lib/tests";
@@ -14,16 +14,31 @@ type RunnerProps = {
   onFinish: () => void;
 };
 
+type SafariFullscreenDocument = Document & {
+  webkitExitFullscreen?: () => Promise<void> | void;
+  webkitFullscreenElement?: Element | null;
+};
+
 export function TestRunner({ initialMode, language, t, onFinish }: RunnerProps) {
   const [mode, setMode] = useState(initialMode);
   const [index, setIndex] = useState(0);
-  const [controls, setControls] = useState(true);
+  const [controls, setControls] = useState(false);
+  const controlsTimer = useRef<number | undefined>(undefined);
   const test = DISPLAY_TESTS[index];
   const [name, hint] = t.tests[test.id];
 
+  const showControlsBriefly = useCallback(() => {
+    setControls(true);
+    window.clearTimeout(controlsTimer.current);
+    controlsTimer.current = window.setTimeout(() => setControls(false), 800);
+  }, []);
+
   const finish = useCallback(async () => {
     track("display_test_completed", { mode, language, testsViewed: index + 1 });
+    const fullscreenDocument = document as SafariFullscreenDocument;
     if (document.fullscreenElement) await document.exitFullscreen().catch(() => undefined);
+    else if (fullscreenDocument.webkitFullscreenElement)
+      await fullscreenDocument.webkitExitFullscreen?.();
     onFinish();
   }, [index, language, mode, onFinish]);
 
@@ -42,6 +57,7 @@ export function TestRunner({ initialMode, language, t, onFinish }: RunnerProps) 
 
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
+      showControlsBriefly();
       if (event.key === "ArrowRight" || event.key === " ") go(1);
       if (event.key === "ArrowLeft") go(-1);
       if (event.key === "Escape") void finish();
@@ -50,7 +66,14 @@ export function TestRunner({ initialMode, language, t, onFinish }: RunnerProps) 
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [finish, go]);
+  }, [finish, go, showControlsBriefly]);
+
+  useEffect(
+    () => () => {
+      window.clearTimeout(controlsTimer.current);
+    },
+    [],
+  );
 
   const progress = useMemo(() => {
     const elapsed = DISPLAY_TESTS.slice(0, index).reduce((sum, item) => sum + getTestDuration(item), 0);
@@ -60,7 +83,11 @@ export function TestRunner({ initialMode, language, t, onFinish }: RunnerProps) 
   }, [index, mode]);
 
   return (
-    <main className="runner" onDoubleClick={() => setControls((value) => !value)}>
+    <main
+      className={`runner ${controls ? "" : "runner--controls-hidden"}`}
+      onPointerMove={showControlsBriefly}
+      onPointerDown={showControlsBriefly}
+    >
       <div
         className={`test-surface ${test.className ?? ""}`}
         style={test.color ? { background: test.color } : undefined}

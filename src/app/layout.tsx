@@ -16,6 +16,11 @@ export const metadata: Metadata = {
   title,
   description,
   applicationName: "Screen Doctor",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Screen Doctor",
+  },
   keywords: ["тест дисплея", "биті пікселі", "screen test", "OLED burn-in", "monitor test"],
   authors: [{ name: "Baskerville42" }],
   manifest: "/manifest.webmanifest",
