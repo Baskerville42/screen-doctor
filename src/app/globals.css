@@ -27,7 +27,8 @@ button {
   cursor: pointer;
 }
 .home,
-.result-page {
+.result-page,
+.legal-page {
   min-height: 100dvh;
   overflow: hidden;
   position: relative;
@@ -113,6 +114,36 @@ footer {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+.nav-tools {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.language-switch {
+  display: flex;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+  color: #68717b;
+  font: 9px var(--font-geist-mono);
+  letter-spacing: 0.6px;
+  cursor: pointer;
+}
+.language-switch span {
+  padding: 6px 7px;
+  border-radius: 5px;
+}
+.language-switch .active {
+  color: #eaf7f3;
+  background: rgba(255, 255, 255, 0.1);
+}
+.result-page > .language-switch {
+  position: absolute;
+  top: 26px;
+  right: 28px;
+  z-index: 5;
 }
 .nav-status i,
 .eyebrow i {
@@ -448,6 +479,75 @@ footer {
 footer p {
   margin-left: auto;
   margin-right: 50px;
+}
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+}
+.footer-links a {
+  color: #69717c;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-links a:hover {
+  color: #d7e2df;
+}
+.social-link {
+  width: 25px;
+  height: 25px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+}
+.social-link svg {
+  width: 12px;
+}
+.legal-page {
+  min-height: 100dvh;
+}
+.legal-content {
+  width: min(760px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 100px 0 120px;
+  position: relative;
+  z-index: 2;
+}
+.legal-back {
+  display: inline-block;
+  margin-bottom: 70px;
+  color: #747d87;
+  text-decoration: none;
+  font-size: 11px;
+}
+.legal-content h1 {
+  margin: 0;
+  font-size: clamp(48px, 7vw, 80px);
+  line-height: 1;
+  letter-spacing: -0.065em;
+  font-weight: 520;
+}
+.legal-intro {
+  color: #a0a8b1;
+  font-size: 17px;
+  line-height: 1.7;
+  margin: 30px 0 70px;
+}
+.legal-content section {
+  padding: 30px 0;
+  border-top: 1px solid var(--line);
+}
+.legal-content h2 {
+  margin: 0 0 13px;
+  font-size: 15px;
+  font-weight: 550;
+}
+.legal-content section p {
+  margin: 0;
+  color: #737c86;
+  font-size: 13px;
+  line-height: 1.75;
 }
 
 /* Diagnostic runner */
@@ -788,6 +888,22 @@ footer p {
   }
   footer p {
     display: none;
+  }
+  footer {
+    padding: 28px 0;
+    gap: 22px;
+    flex-wrap: wrap;
+  }
+  .footer-links {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .legal-content {
+    padding: 70px 0 90px;
+  }
+  .legal-back {
+    margin-bottom: 50px;
   }
   .runner-top {
     padding: 20px;

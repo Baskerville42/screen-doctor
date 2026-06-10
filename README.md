@@ -2,17 +2,19 @@
 
 Професійний веб-інструмент для повноекранної діагностики дисплеїв після ремонту або перед купівлею пристрою.
 
-Screen Doctor запускає 20 спеціально підібраних сцен приблизно за 30 секунд і допомагає помітити биті та застряглі пікселі, засвіти, нерівномірність підсвітки, OLED burn-in, banding, ghosting і проблеми кольоропередачі.
+Screen Doctor запускає 20 спеціально підібраних сцен за 45 секунд і допомагає помітити биті та застряглі пікселі, засвіти, нерівномірність підсвітки, OLED burn-in, banding, ghosting і проблеми кольоропередачі.
 
 ## Можливості
 
-- автоматичний 30-секундний цикл та ручний режим;
+- автоматичний 45-секундний цикл та ручний режим;
+- автоматичне визначення української або англійської мови з ручним перемикачем;
 - Fullscreen API, клавіатурна і touch-friendly навігація;
 - точні CSS-патерни та плавний Canvas 2D motion test;
 - PWA-встановлення й офлайн-режим;
 - адаптивний преміальний інтерфейс;
 - SEO metadata, OpenGraph, Twitter Cards, sitemap і robots;
-- Vercel Analytics без cookies;
+- Vercel Analytics без cookies із подіями старту/завершення та режиму тестування;
+- Privacy Policy, Terms of Service і повний набір GitHub Community Standards файлів;
 - GitHub Actions для lint, typecheck і production build.
 
 ## Технології
@@ -68,7 +70,9 @@ npx vercel --prod
 src/
   app/             App Router, metadata, SEO routes
   components/      landing, runner, canvas animation, PWA registration
-  lib/tests.ts     декларативний каталог і таймінги тестів
+  i18n/            типізовані український та англійський словники
+  lib/config.ts    продуктова конфігурація, зокрема тривалість автоциклу
+  lib/tests.ts     декларативний каталог і ваги тестів
 public/
   icons/           PWA assets
   manifest.webmanifest

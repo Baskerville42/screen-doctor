@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-export function MotionCanvas({ inverse = false }: { inverse?: boolean }) {
+export function MotionCanvas({ inverse = false, label }: { inverse?: boolean; label: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -45,5 +45,5 @@ export function MotionCanvas({ inverse = false }: { inverse?: boolean }) {
     return () => cancelAnimationFrame(raf);
   }, [inverse]);
 
-  return <canvas ref={ref} className="motion-canvas" aria-label="Анімований тест руху" />;
+  return <canvas ref={ref} className="motion-canvas" aria-label={label} />;
 }

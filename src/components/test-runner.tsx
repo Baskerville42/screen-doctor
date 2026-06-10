@@ -1,25 +1,31 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { DISPLAY_TESTS, TOTAL_AUTO_DURATION } from "@/lib/tests";
+import { track } from "@vercel/analytics";
+import type { Dictionary, Language } from "@/i18n";
+import { DISPLAY_TESTS, getTestDuration, TOTAL_AUTO_DURATION } from "@/lib/tests";
 import { ChevronIcon, ExpandIcon } from "./icons";
 import { MotionCanvas } from "./motion-canvas";
 
 type RunnerProps = {
   initialMode: "auto" | "manual";
+  language: Language;
+  t: Dictionary;
   onFinish: () => void;
 };
 
-export function TestRunner({ initialMode, onFinish }: RunnerProps) {
+export function TestRunner({ initialMode, language, t, onFinish }: RunnerProps) {
   const [mode, setMode] = useState(initialMode);
   const [index, setIndex] = useState(0);
   const [controls, setControls] = useState(true);
   const test = DISPLAY_TESTS[index];
+  const [name, hint] = t.tests[test.id];
 
   const finish = useCallback(async () => {
+    track("display_test_completed", { mode, language, testsViewed: index + 1 });
     if (document.fullscreenElement) await document.exitFullscreen().catch(() => undefined);
     onFinish();
-  }, [onFinish]);
+  }, [index, language, mode, onFinish]);
 
   const go = useCallback((direction: number) => {
     setIndex((current) => Math.min(Math.max(current + direction, 0), DISPLAY_TESTS.length - 1));
@@ -30,9 +36,9 @@ export function TestRunner({ initialMode, onFinish }: RunnerProps) {
     const timer = window.setTimeout(() => {
       if (index === DISPLAY_TESTS.length - 1) void finish();
       else setIndex((value) => value + 1);
-    }, test.duration);
+    }, getTestDuration(test));
     return () => window.clearTimeout(timer);
-  }, [finish, index, mode, test.duration]);
+  }, [finish, index, mode, test]);
 
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
@@ -47,7 +53,7 @@ export function TestRunner({ initialMode, onFinish }: RunnerProps) {
   }, [finish, go]);
 
   const progress = useMemo(() => {
-    const elapsed = DISPLAY_TESTS.slice(0, index).reduce((sum, item) => sum + item.duration, 0);
+    const elapsed = DISPLAY_TESTS.slice(0, index).reduce((sum, item) => sum + getTestDuration(item), 0);
     return mode === "auto"
       ? (elapsed / TOTAL_AUTO_DURATION) * 100
       : ((index + 1) / DISPLAY_TESTS.length) * 100;
@@ -59,7 +65,9 @@ export function TestRunner({ initialMode, onFinish }: RunnerProps) {
         className={`test-surface ${test.className ?? ""}`}
         style={test.color ? { background: test.color } : undefined}
       >
-        {test.kind === "motion" && <MotionCanvas inverse={test.className === "inverse"} />}
+        {test.kind === "motion" && (
+          <MotionCanvas inverse={test.className === "inverse"} label={t.runner.motionLabel} />
+        )}
       </div>
       <div className={`runner-ui ${controls ? "" : "runner-ui--hidden"}`}>
         <div className="progress-track">
@@ -69,35 +77,35 @@ export function TestRunner({ initialMode, onFinish }: RunnerProps) {
           <div className="runner-title">
             <span>{String(index + 1).padStart(2, "0")}</span>
             <div>
-              <strong>{test.name}</strong>
-              <p>{test.hint}</p>
+              <strong>{name}</strong>
+              <p>{hint}</p>
             </div>
           </div>
           <button className="glass-button" onClick={finish}>
-            <ExpandIcon /> Завершити
+            <ExpandIcon /> {t.runner.finish}
           </button>
         </header>
-        <footer className="runner-bottom">
+        <div className="runner-bottom">
           <button
             className="runner-arrow"
             disabled={index === 0}
             onClick={() => go(-1)}
-            aria-label="Попередній тест"
+            aria-label={t.runner.previous}
           >
             <ChevronIcon className="rotate-180" />
           </button>
           <button className="mode-switch" onClick={() => setMode(mode === "auto" ? "manual" : "auto")}>
-            <span className={mode === "auto" ? "active" : ""}>Авто</span>
-            <span className={mode === "manual" ? "active" : ""}>Ручний</span>
+            <span className={mode === "auto" ? "active" : ""}>{t.runner.auto}</span>
+            <span className={mode === "manual" ? "active" : ""}>{t.runner.manual}</span>
           </button>
           <button
             className="runner-arrow"
             onClick={() => (index === DISPLAY_TESTS.length - 1 ? void finish() : go(1))}
-            aria-label="Наступний тест"
+            aria-label={t.runner.next}
           >
             <ChevronIcon />
           </button>
-        </footer>
+        </div>
       </div>
     </main>
   );

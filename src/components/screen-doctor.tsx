@@ -1,61 +1,57 @@
 "use client";
 
 import { useState } from "react";
+import { track } from "@vercel/analytics";
+import { useLanguage } from "@/i18n";
+import { AUTO_TEST_DURATION_SECONDS } from "@/lib/config";
 import { DISPLAY_TESTS } from "@/lib/tests";
 import { ArrowIcon, CheckIcon, ExpandIcon } from "./icons";
+import { LanguageSwitch } from "./language-switch";
+import { SiteFooter } from "./site-footer";
 import { TestRunner } from "./test-runner";
 
 type View = "home" | "runner" | "result";
 
-const FEATURES = [
-  ["20", "точних тестів"],
-  ["30 с", "автоматичний цикл"],
-  ["100%", "працює локально"],
-];
-
 export function ScreenDoctor() {
   const [view, setView] = useState<View>("home");
   const [mode, setMode] = useState<"auto" | "manual">("auto");
+  const { language, setLanguage, t } = useLanguage();
 
   const start = async (selectedMode: "auto" | "manual") => {
     setMode(selectedMode);
+    track("display_test_started", { mode: selectedMode, language });
     await document.documentElement.requestFullscreen?.().catch(() => undefined);
     setView("runner");
   };
 
-  if (view === "runner") return <TestRunner initialMode={mode} onFinish={() => setView("result")} />;
+  if (view === "runner")
+    return <TestRunner initialMode={mode} language={language} t={t} onFinish={() => setView("result")} />;
 
   if (view === "result") {
     return (
       <main className="result-page">
         <div className="ambient ambient--one" />
         <div className="ambient ambient--two" />
+        <LanguageSwitch language={language} label={t.nav.language} onChange={setLanguage} />
         <section className="result-card">
           <div className="result-check">
             <CheckIcon />
           </div>
-          <span className="eyebrow">Перевірку завершено</span>
-          <h1>Як виглядає ваш дисплей?</h1>
-          <p>
-            Ми показали всі патерни. Остаточну оцінку робите ви — жодне зображення не передавалось із
-            пристрою.
-          </p>
+          <span className="eyebrow">{t.result.eyebrow}</span>
+          <h1>{t.result.title}</h1>
+          <p>{t.result.description}</p>
           <div className="result-notes">
-            <span>
-              <CheckIcon /> Кольори рівномірні
-            </span>
-            <span>
-              <CheckIcon /> Немає нерухомих пікселів
-            </span>
-            <span>
-              <CheckIcon /> Рух виглядає плавно
-            </span>
+            {t.result.notes.map((note) => (
+              <span key={note}>
+                <CheckIcon /> {note}
+              </span>
+            ))}
           </div>
           <button className="primary-button" onClick={() => void start("auto")}>
-            Повторити перевірку <ArrowIcon />
+            {t.result.repeat} <ArrowIcon />
           </button>
           <button className="text-button" onClick={() => setView("home")}>
-            На головну
+            {t.result.home}
           </button>
         </section>
       </main>
@@ -68,105 +64,87 @@ export function ScreenDoctor() {
       <div className="ambient ambient--one" />
       <div className="ambient ambient--two" />
       <nav className="nav-shell">
-        <a className="brand" href="#" aria-label="Screen Doctor, головна">
+        <a className="brand" href="#" aria-label={t.nav.home}>
           <span className="brand-mark">
             <i />
           </span>
           <b>screen doctor</b>
         </a>
-        <div className="nav-status">
-          <i /> Працює офлайн
+        <div className="nav-tools">
+          <div className="nav-status">
+            <i /> {t.nav.offline}
+          </div>
+          <LanguageSwitch language={language} label={t.nav.language} onChange={setLanguage} />
         </div>
       </nav>
-
       <section className="hero">
         <div className="hero-copy">
           <span className="eyebrow">
-            <i /> Діагностика дисплея
+            <i /> {t.hero.eyebrow}
           </span>
           <h1>
-            Кожен піксель
+            {t.hero.title}
             <br />
-            <em>має значення.</em>
+            <em>{t.hero.titleAccent}</em>
           </h1>
-          <p>
-            Професійна перевірка екрана на биті пікселі, засвіти, вигорання, banding і ghosting. Без
-            реєстрації. Просто натисніть старт.
-          </p>
+          <p>{t.hero.description}</p>
           <div className="hero-actions">
             <button className="primary-button" onClick={() => void start("auto")}>
-              Почати перевірку <ArrowIcon />
+              {t.hero.start} <ArrowIcon />
             </button>
             <button className="secondary-button" onClick={() => void start("manual")}>
-              <ExpandIcon /> Ручний режим
+              <ExpandIcon /> {t.hero.manual}
             </button>
           </div>
-          <small>Браузер може попросити дозвіл на повноекранний режим.</small>
+          <small>{t.hero.fullscreenNote}</small>
         </div>
-        <DisplayOrb />
+        <DisplayOrb pixelScan={t.hero.pixelScan} hzMotion={t.hero.hzMotion} />
       </section>
-
-      <section className="stats" aria-label="Переваги Screen Doctor">
-        {FEATURES.map(([value, label]) => (
-          <div key={label}>
-            <strong>{value}</strong>
-            <span>{label}</span>
-          </div>
-        ))}
+      <section className="stats">
+        <div>
+          <strong>{DISPLAY_TESTS.length}</strong>
+          <span>{t.stats.tests}</span>
+        </div>
+        <div>
+          <strong>
+            {AUTO_TEST_DURATION_SECONDS} {t.stats.seconds}
+          </strong>
+          <span>{t.stats.auto}</span>
+        </div>
+        <div>
+          <strong>100%</strong>
+          <span>{t.stats.local}</span>
+        </div>
       </section>
-
       <section className="test-preview">
         <div>
-          <span className="eyebrow">Повний огляд</span>
+          <span className="eyebrow">{t.preview.eyebrow}</span>
           <h2>
-            Від чистого білого
+            {t.preview.title}
             <br />
-            до швидкого руху.
+            {t.preview.titleAccent}
           </h2>
         </div>
-        <p>
-          {DISPLAY_TESTS.length} спеціально підібраних сцен допоможуть помітити дефекти матриці, які легко
-          пропустити під час звичайного використання.
-        </p>
+        <p>{t.preview.description.replace("{count}", String(DISPLAY_TESTS.length))}</p>
         <div className="preview-grid">
-          <article className="preview-card preview-card--colors">
-            <span>01</span>
-            <strong>Чисті кольори</strong>
-            <p>Биті та застряглі пікселі</p>
-          </article>
-          <article className="preview-card preview-card--gradient">
-            <span>02</span>
-            <strong>Градієнти</strong>
-            <p>Banding та кольоропередача</p>
-          </article>
-          <article className="preview-card preview-card--grid">
-            <span>03</span>
-            <strong>Геометрія</strong>
-            <p>Рівність матриці й артефакти</p>
-          </article>
-          <article className="preview-card preview-card--motion">
-            <span>04</span>
-            <strong>Рух</strong>
-            <p>Ghosting, шлейфи та ривки</p>
-          </article>
+          {t.preview.cards.map(([title, description], index) => (
+            <article
+              className={`preview-card preview-card--${["colors", "gradient", "grid", "motion"][index]}`}
+              key={title}
+            >
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <strong>{title}</strong>
+              <p>{description}</p>
+            </article>
+          ))}
         </div>
       </section>
-
-      <footer>
-        <a className="brand" href="#">
-          <span className="brand-mark">
-            <i />
-          </span>
-          <b>screen doctor</b>
-        </a>
-        <p>Створено для чесної перевірки техніки.</p>
-        <span>© {new Date().getFullYear()}</span>
-      </footer>
+      <SiteFooter t={t} />
     </main>
   );
 }
 
-function DisplayOrb() {
+function DisplayOrb({ pixelScan, hzMotion }: { pixelScan: string; hzMotion: string }) {
   return (
     <div className="orb-wrap" aria-hidden="true">
       <div className="orb-ring orb-ring--one" />
@@ -176,10 +154,10 @@ function DisplayOrb() {
         <div className="orb-grid" />
       </div>
       <div className="float-label float-label--top">
-        <i /> Pixel scan
+        <i /> {pixelScan}
       </div>
       <div className="float-label float-label--bottom">
-        <span>120</span> Hz motion
+        <span>120</span> {hzMotion}
       </div>
     </div>
   );
