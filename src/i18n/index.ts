@@ -13,9 +13,7 @@ export function useLanguage() {
 
   useEffect(() => {
     const saved = localStorage.getItem("screen-doctor-language");
-    const detected = navigator.languages.some((locale) => locale.toLowerCase().startsWith("uk"))
-      ? "uk"
-      : "en";
+    const detected = navigator.language.toLowerCase().startsWith("uk") ? "uk" : "en";
     const next = saved === "uk" || saved === "en" ? saved : detected;
     queueMicrotask(() => setLanguageState(next));
     document.documentElement.lang = next;
