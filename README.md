@@ -1,89 +1,101 @@
 # Screen Doctor
 
-Професійний веб-інструмент для повноекранної діагностики дисплеїв після ремонту або перед купівлею пристрою.
+[Screen Doctor](https://screen-doctor.vercel.app) is a professional fullscreen display diagnostics tool for checking devices after repair or before purchase.
 
-Screen Doctor запускає 20 спеціально підібраних сцен за 45 секунд і допомагає помітити биті та застряглі пікселі, засвіти, нерівномірність підсвітки, OLED burn-in, banding, ghosting і проблеми кольоропередачі.
+It runs 20 carefully selected diagnostic scenes in a 45-second automatic cycle and helps reveal dead or stuck pixels, backlight bleed, uneven illumination, OLED burn-in, color banding, ghosting, and color reproduction issues.
 
-## Можливості
+## Features
 
-- автоматичний 45-секундний цикл та ручний режим;
-- автоматичне визначення української або англійської мови з ручним перемикачем;
-- Fullscreen API, клавіатурна і touch-friendly навігація;
-- точні CSS-патерни та плавний Canvas 2D motion test;
-- PWA-встановлення й офлайн-режим;
-- адаптивний преміальний інтерфейс;
-- SEO metadata, OpenGraph, Twitter Cards, sitemap і robots;
-- Vercel Analytics без cookies із подіями старту/завершення та режиму тестування;
-- Privacy Policy, Terms of Service і повний набір GitHub Community Standards файлів;
-- GitHub Actions для lint, typecheck і production build.
+- 45-second automatic cycle and a manual inspection mode;
+- automatic Ukrainian or English language detection with a manual switch;
+- Fullscreen API with keyboard and touch-friendly navigation;
+- pixel-precise CSS patterns and smooth Canvas 2D motion tests;
+- installable PWA with offline support;
+- responsive premium interface;
+- SEO metadata, OpenGraph, Twitter Cards, sitemap, and robots.txt;
+- cookie-free Vercel Analytics with test start, completion, and mode events;
+- bilingual Privacy Policy and Terms of Service;
+- complete GitHub Community Standards files;
+- GitHub Actions verification for lint, types, formatting, and production builds.
 
-## Технології
+## Technology
 
-Next.js 16, React 19, TypeScript, Tailwind CSS 4, Canvas 2D, Vercel Analytics.
+Next.js 16, React 19, TypeScript, Tailwind CSS 4, Canvas 2D, and Vercel Analytics.
 
-Canvas 2D використано лише для motion-тестів: він дає стабільну частоту кадрів без ваги та складності повноцінного 3D-рушія. Статичні діагностичні патерни створені CSS, тому залишаються чіткими на будь-якій роздільній здатності.
+Canvas 2D is used only for motion tests because it provides a stable frame rate without the weight and maintenance cost of a full 3D engine. Static diagnostic patterns use CSS so they remain sharp at every resolution and pixel density.
 
-## Локальний запуск
+## Local Development
 
-Потрібен Node.js 22+.
+Node.js 22 or newer is required.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Відкрийте [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000).
 
-## Перевірки
+## Verification
+
+Run the same checks used by CI before opening a pull request:
 
 ```bash
 npm run lint
 npm run typecheck
-npm run build
 npm run format:check
+npm run build
 ```
 
-## Керування тестом
+## Test Controls
 
-- `→` або `Space`: наступний тест
-- `←`: попередній тест
-- `M`: перемкнути автоматичний/ручний режим
-- `H` або подвійний клік: сховати/показати керування
-- `Escape`: завершити
+- `→` or `Space`: next test
+- `←`: previous test
+- `M`: switch between automatic and manual modes
+- `H` or double-click: hide or show controls
+- `Escape`: finish the test
 
-## Деплой на Vercel
+## Deployment
 
-1. Імпортуйте GitHub-репозиторій у Vercel.
-2. Framework Preset визначиться як Next.js автоматично.
-3. Додайте `NEXT_PUBLIC_SITE_URL` із production URL для canonical URL та sitemap.
-4. Натисніть Deploy. Наступні push у `main` запускають production deployment.
+The GitHub repository is connected to Vercel. Pushes to `main` trigger production deployments after CI verification.
 
-Альтернатива через CLI:
+For a manual production deployment:
 
 ```bash
 npx vercel --prod
 ```
 
-## Архітектура
+Set `NEXT_PUBLIC_SITE_URL` to the production URL when deploying under a different domain so canonical URLs and the sitemap remain correct.
+
+## Architecture
 
 ```text
 src/
-  app/             App Router, metadata, SEO routes
-  components/      landing, runner, canvas animation, PWA registration
-  i18n/            типізовані український та англійський словники
-  lib/config.ts    продуктова конфігурація, зокрема тривалість автоциклу
-  lib/tests.ts     декларативний каталог і ваги тестів
+  app/             App Router pages, metadata, SEO, and legal routes
+  components/      landing, runner, footer, legal UI, and PWA registration
+  i18n/            typed Ukrainian and English dictionaries
+  lib/config.ts    product configuration, URLs, and automatic cycle duration
+  lib/tests.ts     declarative test catalog and relative timing weights
 public/
   icons/           PWA assets
   manifest.webmanifest
   sw.js            offline cache
-.github/workflows/ci.yml
+.github/
+  workflows/       CI verification
+  ISSUE_TEMPLATE/  structured issue forms
 ```
 
-## Приватність
+See [AGENT.md](AGENT.md) for architecture decisions, maintenance guidance, and the recommended development workflow.
 
-Зображення екрана не записується і не передається. Діагностика візуальна та виконується локально у браузері. Vercel Analytics збирає агреговану статистику відвідувань без cookies.
+## Analytics and Privacy
+
+Display images are never captured or transmitted. Diagnostics run locally in the browser.
+
+Vercel Analytics provides aggregated, cookie-free traffic, referral, and device information. Custom events record whether automatic or manual tests start and complete, the selected language, and the number of tests viewed.
+
+## Contributing
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), and [SECURITY.md](SECURITY.md) before contributing.
 
 ## License
 
-MIT
+[MIT](LICENSE) © Alexander Tartmin
